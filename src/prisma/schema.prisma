@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Models
+model Team {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String
+  logo         String?
+  coach        String?
+  players      Player[]
+  matchesHome  Match[]   @relation("homeMatches")
+  matchesAway  Match[]   @relation("awayMatches")
+  sports       Sports?  @relation(fields: [sportsId], references: [id])
+  sportsId     String?  @db.Uuid
+  division     Division? @default(MEN)
+
+  lineups      Lineup[]  // <-- optional 
+}
+
+model Player {
+  id           String        @id 
+  name         String
+  positions    String[]
+  jerseyNumber Int          
+  team         Team          @relation(fields: [teamId], references: [id])
+  teamId       String        @db.Uuid
+  stats        PlayerStats[]
+ 
+  events       Event[]       @relation("EventPlayer")
+  assists      Event[]       @relation("EventAssist")
+  subsOn       Event[]       @relation("EventSubOn")
+  subsOff      Event[]       @relation("EventSubOff")
+
+  // matchHomeLineup Match[]    @relation("matchHomeLineup")
+  // matchAwayLineup Match[]    @relation("matchAwayLineup")
+
+  lineups      Lineup[]       // <-- new relation
+}
+
+// model Match {
+//   id          String         @id @default(uuid()) @db.Uuid
+//   seasonId    String         @db.Uuid
+//   season      Season         @relation(fields: [seasonId], references: [id])
+//   matchDate   DateTime      
+//   homeTeam    Team           @relation("homeMatches", fields: [homeTeamId], references: [id])
+//   homeTeamId  String         @db.Uuid
+//   awayTeam    Team           @relation("awayMatches", fields: [awayTeamId], references: [id])
+//   awayTeamId  String          @db.Uuid
+//   homeScore   Int?          
+//   awayScore   Int?          
+//   stats       PlayerStats[]
+//   // lineup relations
+//   homeLineup  Player[]       @relation("matchHomeLineup")
+//   awayLineup  Player[]       @relation("matchAwayLineup")
+//   events      Event[]
+//   homeFormation String?       @db.VarChar(255)
+//   awayFormation String?       @db.VarChar(255)
+//   division    Division?     @default(MEN)
+// }
+
+model Match {
+  id            String         @id @default(uuid()) @db.Uuid
+  seasonId      String         @db.Uuid
+  season        Season         @relation(fields: [seasonId], references: [id])
+  matchDate     DateTime      
+  homeTeam      Team           @relation("homeMatches", fields: [homeTeamId], references: [id])
+  homeTeamId    String         @db.Uuid
+  awayTeam      Team           @relation("awayMatches", fields: [awayTeamId], references: [id])
+  awayTeamId    String         @db.Uuid
+  homeScore     Int?          
+  awayScore     Int?          
+  stats         PlayerStats[]
+  events        Event[]
+  homeFormation String?       @db.VarChar(255)
+  awayFormation String?       @db.VarChar(255)
+  division      Division?      @default(MEN)
+
+  lineups       Lineup[]       // <-- new relation
+}
+
+model Lineup {
+  id        String   @id @default(uuid()) @db.Uuid
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId   String   @db.Uuid
+  player    Player   @relation(fields: [playerId], references: [id])
+  playerId  String   
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String   @db.Uuid
+  isStarter Boolean
+  position  String?  // Optional position info
+}
+
+
+model PlayerStats {
+  id        String   @id @default(uuid()) @db.Uuid
+  match     Match?   @relation(fields: [matchId], references: [id])
+  matchId   String?   @db.Uuid
+  season    Season  @relation(fields: [seasonId], references: [id])
+  seasonId  String  @db.Uuid
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId  String  
+  goals     Int
+  assists   Int
+  yellowCards Int
+  redCards  Int
+  cleanSheets Int
+  division Division @default(MEN)
+}
+
+model Event {
+  id        String   @id @default(uuid()) @db.Uuid
+  fixture   Match    @relation(fields: [fixtureId], references: [id])
+  fixtureId String   @db.Uuid
+  minute    Int
+  type      String
+  player    Player   @relation("EventPlayer", fields: [playerId], references: [id])
+  playerId  String   
+  assist    Player?  @relation("EventAssist", fields: [assistId], references: [id])
+  assistId  String?  
+  subOn     Player?  @relation("EventSubOn", fields: [subOnId], references: [id])
+  subOnId   String?  
+  subOff    Player?  @relation("EventSubOff", fields: [subOffId], references: [id])
+  subOffId  String?  
+}
+
+model Standing {
+  id     String @id @default(uuid()) @db.Uuid
+  team   String
+  points Int
+  wins      Int      @default(0) 
+  draws     Int      @default(0) 
+  losses    Int      @default(0) 
+  seasonId String   @db.Uuid
+  season Season @relation(fields: [seasonId], references: [id])
+  sportsId String  @db.Uuid
+  sports Sports @relation(fields: [sportsId], references: [id])
+  division Division @default(MEN)
+}
+
+model Season {
+  id        String     @id @default(uuid()) @db.Uuid
+  season    String
+  startDate DateTime?
+  endDate DateTime?
+  standings Standing[]
+  matches   Match[]
+  sports    Sports[]   @relation("SeasontoSports")
+
+  PlayerStats PlayerStats[]
+}
+
+model Sports {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  teams     Team[]
+  seasons   Season[] @relation("SeasontoSports")
+  standings Standing[]
+}
+
+
+enum Division {
+  MEN
+  WOMEN
+  MIXED
+}
