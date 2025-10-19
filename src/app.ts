@@ -23,7 +23,7 @@ export const createApp = (): Application => {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   // Health check endpoint
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.json({
       status: 'ok',
       message: 'Acity Sports API',

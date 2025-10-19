@@ -158,6 +158,195 @@ The server will start on `http://localhost:3000`
 - `PUT /api/v1/sports/:id` - Update sport
 - `DELETE /api/v1/sports/:id` - Delete sport
 
+## API Responses
+
+All API responses follow a consistent format for easy parsing and error handling.
+
+### Success Responses
+
+#### Successful GET/POST/PUT Request
+
+```json
+{
+  "success": true,
+  "data": {
+    // Resource data object or array
+  }
+}
+```
+
+**Status Codes:**
+
+- `200 OK` - Successful GET, PUT request
+- `201 Created` - Successful POST request
+- `204 No Content` - Successful DELETE request (empty response body)
+
+**Example:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "Team Alpha",
+    "sportId": "sport-123",
+    "createdAt": "2025-01-15T10:30:00.000Z",
+    "updatedAt": "2025-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### Error Responses
+
+#### Not Found (404)
+
+```json
+{
+  "success": false,
+  "message": "Resource not found"
+}
+```
+
+#### Server Error (500)
+
+```json
+{
+  "success": false,
+  "error": "Internal Server Error"
+}
+```
+
+#### Validation Error (400)
+
+```json
+{
+  "success": false,
+  "error": "Validation failed: required field missing"
+}
+```
+
+**Error Status Codes:**
+
+- `400 Bad Request` - Invalid request data or validation error
+- `404 Not Found` - Resource does not exist
+- `500 Internal Server Error` - Server-side error
+
+### Response Examples by Endpoint
+
+#### Get All Teams
+
+**Request:**
+
+```bash
+GET /api/v1/teams
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "team-1",
+      "name": "Team Alpha",
+      "sportId": "sport-123"
+    },
+    {
+      "id": "team-2",
+      "name": "Team Beta",
+      "sportId": "sport-456"
+    }
+  ]
+}
+```
+
+#### Get Single Match
+
+**Request:**
+
+```bash
+GET /api/v1/matches/match-123
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "match-123",
+    "homeTeamId": "team-1",
+    "awayTeamId": "team-2",
+    "date": "2025-03-15T14:00:00.000Z",
+    "location": "Main Stadium",
+    "status": "scheduled"
+  }
+}
+```
+
+#### Create Player
+
+**Request:**
+
+```bash
+POST /api/v1/players
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "teamId": "team-1",
+  "jerseyNumber": 10
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "player-789",
+    "name": "John Doe",
+    "teamId": "team-1",
+    "jerseyNumber": 10,
+    "createdAt": "2025-01-15T10:30:00.000Z"
+  }
+}
+```
+
+#### Delete Season
+
+**Request:**
+
+```bash
+DELETE /api/v1/seasons/season-456
+```
+
+**Response:**
+
+```
+204 No Content
+(empty response body)
+```
+
+#### Error Response - Not Found
+
+**Request:**
+
+```bash
+GET /api/v1/teams/non-existent-id
+```
+
+**Response:**
+
+```json
+{
+  "success": false,
+  "message": "Team not found"
+}
+```
+
 ## 🔌 Sanity Webhook Configuration
 
 Configure webhooks in Sanity Studio:
