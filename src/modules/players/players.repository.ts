@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Player } from '@prisma/client';
-
+import { z } from 'zod';
 /**
  * Find player by ID
  */
@@ -47,6 +47,38 @@ export const findPlayersByTeam = async (teamId: string): Promise<Player[]> => {
     where: { teamId },
     include: {
       team: true,
+      stats: true
+    }
+  });
+};
+
+/**
+ * Find players by sport (either by sportId or sport name)
+ */
+export const findPlayersBySport = async (sportIdOrName: string): Promise<Player[]> => {
+  // Try to find by sport ID first, then by sport name
+  return await prisma.player.findMany({
+    where: {
+      team: {
+        OR: [
+          (z.uuid().safeParse(sportIdOrName).success ? { sportsId: sportIdOrName } : {}),
+          { 
+            sports: { 
+              name: {
+                equals: sportIdOrName,
+                mode: 'insensitive'
+              }
+            }
+          }
+        ]
+      }
+    },
+    include: {
+      team: {
+        include: {
+          sports: true
+        }
+      },
       stats: true
     }
   });

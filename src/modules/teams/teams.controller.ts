@@ -26,7 +26,15 @@ export const getTeam = async (req: Request, res: Response, next: NextFunction): 
 
 export const getAllTeams = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const teams = await teamsService.getAll();
+    const { sportId, sport } = req.query;
+    let teams;
+    if (sportId && typeof sportId === 'string') {
+      teams = await teamsService.getBySport(sportId);
+    } else if (sport && typeof sport === 'string') {
+      teams = await teamsService.getBySport(sport);
+    } else {
+      teams = await teamsService.getAll();
+    }
     return res.json({ 
       success: true, 
       data: teams 

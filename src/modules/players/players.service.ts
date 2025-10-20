@@ -14,6 +14,10 @@ export class PlayersService {
     return await playersRepo.findPlayersByTeam(teamId);
   }
 
+  async getBySport(sportIdOrName: string): Promise<Player[]> {
+    return await playersRepo.findPlayersBySport(sportIdOrName);
+  }
+
   async create(playerData: any): Promise<Player> {
     const data = {
       name: playerData.name,

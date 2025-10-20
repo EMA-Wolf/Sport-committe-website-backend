@@ -16,6 +16,10 @@ export class MatchesService {
     return await matchesRepo.findMatchesBySeason(seasonId);
   }
 
+  async getBySport(sportIdOrName: string): Promise<Match[]> {
+    return await matchesRepo.findMatchesBySport(sportIdOrName);
+  }
+
   async create(matchData: any): Promise<Match> {
     const data = {
       matchDate: new Date(matchData.matchDate),

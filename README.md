@@ -128,6 +128,8 @@ The server will start on `http://localhost:3000`
 
 - `GET /api/v1/matches` - Get all matches
 - `GET /api/v1/matches?seasonId=xyz` - Get matches by season
+- `GET /api/v1/matches?sportId=xyz` - Get matches by sport ID
+- `GET /api/v1/matches?sport=basketball` - Get matches by sport name
 - `GET /api/v1/matches/:id` - Get match by ID
 - `POST /api/v1/matches` - Create match
 - `PUT /api/v1/matches/:id` - Update match
@@ -145,6 +147,8 @@ The server will start on `http://localhost:3000`
 
 - `GET /api/v1/players` - Get all players
 - `GET /api/v1/players?teamId=xyz` - Get players by team
+- `GET /api/v1/players?sportId=xyz` - Get players by sport ID
+- `GET /api/v1/players?sport=basketball` - Get players by sport name
 - `GET /api/v1/players/:id` - Get player by ID
 - `POST /api/v1/players` - Create player
 - `PUT /api/v1/players/:id` - Update player
@@ -282,6 +286,78 @@ GET /api/v1/matches/match-123
     "location": "Main Stadium",
     "status": "scheduled"
   }
+}
+```
+
+#### Get Players by Sport
+
+**Request:**
+
+```bash
+GET /api/v1/players?sport=basketball
+# or
+GET /api/v1/players?sportId=sport-123
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "player-1",
+      "name": "John Doe",
+      "teamId": "team-1",
+      "jerseyNumber": 10,
+      "team": {
+        "id": "team-1",
+        "name": "Team Alpha",
+        "sports": {
+          "id": "sport-123",
+          "name": "Basketball"
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Get Matches by Sport
+
+**Request:**
+
+```bash
+GET /api/v1/matches?sport=football
+# or
+GET /api/v1/matches?sportId=sport-456
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "match-1",
+      "homeTeamId": "team-1",
+      "awayTeamId": "team-2",
+      "matchDate": "2025-03-15T14:00:00.000Z",
+      "homeTeam": {
+        "id": "team-1",
+        "name": "Team Alpha",
+        "sports": {
+          "id": "sport-456",
+          "name": "Football"
+        }
+      },
+      "awayTeam": {
+        "id": "team-2",
+        "name": "Team Beta"
+      }
+    }
+  ]
 }
 ```
 

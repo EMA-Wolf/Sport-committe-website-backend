@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Match, Lineup } from '@prisma/client';
-
+import { z } from 'zod';
 /**
  * Find match by ID
  */
@@ -57,6 +57,69 @@ export const findMatchesBySeason = async (seasonId: string): Promise<Match[]> =>
     include: {
       homeTeam: true,
       awayTeam: true,
+      lineups: {
+        include: {
+          player: true
+        }
+      }
+    },
+    orderBy: {
+      matchDate: 'desc'
+    }
+  });
+};
+
+/**
+ * Find matches by sport (either by sportId or sport name)
+ */
+export const findMatchesBySport = async (sportIdOrName: string): Promise<Match[]> => {
+  return await prisma.match.findMany({
+    where: {
+      OR: [
+        {
+          homeTeam: {
+            OR: [
+              (z.uuid().safeParse(sportIdOrName).success ? { sportsId: sportIdOrName } : {}),
+              { 
+                sports: { 
+                  name: {
+                    equals: sportIdOrName,
+                    mode: 'insensitive'
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          awayTeam: {
+            OR: [
+              (z.uuid().safeParse(sportIdOrName).success ? { sportsId: sportIdOrName } : {}),
+              { 
+                sports: { 
+                  name: {
+                    equals: sportIdOrName,
+                    mode: 'insensitive'
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    include: {
+      homeTeam: {
+        include: {
+          sports: true
+        }
+      },
+      awayTeam: {
+        include: {
+          sports: true
+        }
+      },
+      season: true,
       lineups: {
         include: {
           player: true

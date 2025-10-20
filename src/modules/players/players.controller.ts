@@ -26,10 +26,16 @@ export const getPlayer = async (req: Request, res: Response, next: NextFunction)
 
 export const getAllPlayers = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const { teamId } = req.query;
+    const { teamId, sportId, sport } = req.query;
     
     let players;
-    if (teamId && typeof teamId === 'string') {
+    
+    // Priority: sportId > sport > teamId > all
+    if (sportId && typeof sportId === 'string') {
+      players = await playersService.getBySport(sportId);
+    } else if (sport && typeof sport === 'string') {
+      players = await playersService.getBySport(sport);
+    } else if (teamId && typeof teamId === 'string') {
       players = await playersService.getByTeam(teamId);
     } else {
       players = await playersService.getAll();
