@@ -26,10 +26,16 @@ export const getMatch = async (req: Request, res: Response, next: NextFunction):
 
 export const getAllMatches = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const { seasonId } = req.query;
+    const { seasonId, sportId, sport } = req.query;
     
     let matches;
-    if (seasonId && typeof seasonId === 'string') {
+    
+    // Priority: sportId > sport > seasonId > all
+    if (sportId && typeof sportId === 'string') {
+      matches = await matchesService.getBySport(sportId);
+    } else if (sport && typeof sport === 'string') {
+      matches = await matchesService.getBySport(sport);
+    } else if (seasonId && typeof seasonId === 'string') {
       matches = await matchesService.getBySeason(seasonId);
     } else {
       matches = await matchesService.getAll();

@@ -1,6 +1,6 @@
 import prisma from '../../config/prisma';
 import { Team } from '@prisma/client';
-
+import {z} from 'zod';
 /**
  * Find team by ID
  */
@@ -79,3 +79,31 @@ export const upsertTeam = async (id: string, data: any): Promise<Team> => {
   });
 };
 
+export const findTeamsBySport = async (sportIdOrName: string): Promise<Team[]> => {
+  return await prisma.team.findMany({
+    where: { OR: [
+      (z.uuid().safeParse(sportIdOrName).success ? { sportsId: sportIdOrName } : {}),
+      { sports: { name: { equals: sportIdOrName, mode: 'insensitive' } } }
+    ] },
+    include: {
+      players: true,
+      sports: true
+    }
+  });
+};
+// export const findTeamsBySport = async (sportIdOrName: string): Promise<Team[]> => {
+//   return await prisma.team.findMany({
+//     where: { 
+//       sports: {
+//         OR: [
+//           { id: sportIdOrName },
+//           { name: { equals: sportIdOrName, mode: 'insensitive' } }
+//         ]
+//       }
+//     },
+//     include: {
+//       players: true,
+//       sports: true
+//     }
+//   });
+// };

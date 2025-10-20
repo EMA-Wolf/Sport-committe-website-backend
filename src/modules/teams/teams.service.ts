@@ -11,6 +11,10 @@ export class TeamsService {
     return await teamsRepo.findAllTeams();
   }
 
+  async getBySport(sportIdOrName: string): Promise<Team[]> {
+    return await teamsRepo.findTeamsBySport(sportIdOrName);
+  }
+
   async create(teamData: any): Promise<Team> {
     const division = this.mapDivision(teamData.division);
     const sport = await sportsRepo.ensureSportExists(teamData.sport);
